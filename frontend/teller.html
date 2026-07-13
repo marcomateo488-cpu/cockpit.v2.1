@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tickets — Cockpit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="frontend/SG2.png">
+<link rel="shortcut icon" href="frontend/SG2.png">
+
+<style>
+  /* ----- Professional elegant UI (light theme) ----- */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f5f7fc;
+    color: #1a2634;
+    padding: 0;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-disabled { opacity: 0.55; pointer-events: none; }
+
+  /* Topbar */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 32px;
+    background: #ffffff;
+    border-bottom: 1px solid #e6ecf3;
+    flex-wrap: wrap;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .brand-mark {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0 6px 16px rgba(43, 79, 158, 0.15);
+    border: 1px solid #e6ecf3;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .brand-mark:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 24px rgba(43, 79, 158, 0.20);
+  }
+
+  .brand-mark img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
+
+  .brand-text {
+    line-height: 1.2;
+  }
+
+  .brand-title {
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.3px;
+    color: #142435;
+  }
+
+  .brand-sub {
+    font-size: 13px;
+    font-weight: 500;
+    color: #6f7d92;
+    letter-spacing: 0.2px;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .user-chip {
+    background: #f0f3f9;
+    padding: 8px 18px;
+    border-radius: 60px;
+    font-size: 14px;
+    border: 1px solid #dce3ed;
+    color: #1f2b3d;
+  }
+
+  .user-chip strong {
+    color: #142435;
+    font-weight: 600;
+  }
+
+  .btn-logout {
+    background: transparent;
+    border: 1px solid #d0d9e6;
+    color: #3e4d64;
+    padding: 8px 18px;
+    border-radius: 40px;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .btn-logout:hover {
+    background: #eef2f9;
+    border-color: #b0bed0;
+    color: #0f1b2b;
+  }
+
+  /* Main */
+  .main {
+    padding: 28px 32px 48px;
+    max-width: 1440px;
+    margin: 0 auto;
+    width: 100%;
+    flex: 1;
+  }
+
+  /* Phase Rail */
+  .phase-rail {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 20px 28px;
+    border: 1px solid #e6ecf3;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.02);
+    margin-bottom: 28px;
+  }
+
+  .phase-rail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .phase-rail-title {
+    font-weight: 600;
+    font-size: 16px;
+    color: #1a2a40;
+  }
+
+  .round-tag {
+    background: #eef3fc;
+    padding: 5px 18px;
+    border-radius: 60px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e3d6b;
+    border: 1px solid #d2dff0;
+  }
+
+  .rail-track {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 0;
+  }
+
+  .rail-step {
+    flex: 1;
+    min-width: 100px;
+    padding: 10px 8px;
+    background: #f2f6fd;
+    border-radius: 60px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 14px;
+    color: #5a6d87;
+    border: 1px solid #dee7f2;
+    margin-right: 8px;
+    transition: 0.2s;
+  }
+
+  .rail-step .step-num {
+    opacity: 0.6;
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  .rail-step.active {
+    background: #dce6f8;
+    border-color: #9bb2da;
+    color: #1c3260;
+    box-shadow: 0 0 0 1px #a1b8e0;
+  }
+
+  /* Tab Navigation */
+  .tab-nav {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+    background: #ffffff;
+    padding: 4px;
+    border-radius: 16px;
+    border: 1px solid #e6ecf3;
+    width: fit-content;
+  }
+
+  .tab-btn {
+    background: transparent;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 14px;
+    color: #55647a;
+    cursor: pointer;
+    transition: 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .tab-btn:hover {
+    color: #142435;
+    background: #eef2f8;
+  }
+
+  .tab-btn.active {
+    background: #e2e9f5;
+    color: #1a2d4a;
+    font-weight: 600;
+  }
+
+  /* Tab Content */
+  .tab-content {
+    animation: fade 0.2s ease;
+  }
+
+  @keyframes fade {
+    from { opacity: 0.5; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  /* Panels */
+  .panel {
+    background: #ffffff;
+    border: 1px solid #e6ecf3;
+    border-radius: 24px;
+    padding: 24px 28px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+  }
+
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .panel-title {
+    font-weight: 600;
+    font-size: 18px;
+    color: #142435;
+  }
+
+  .panel-hint {
+    font-size: 13px;
+    color: #63778f;
+    margin-top: 4px;
+    max-width: 580px;
+    line-height: 1.5;
+  }
+
+  /* Form Elements */
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .field label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #3d5775;
+  }
+
+  .field input {
+    background: #f8faff;
+    border: 1px solid #dce4ef;
+    border-radius: 14px;
+    padding: 12px 16px;
+    color: #142435;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+  }
+
+  .field input:focus {
+    border-color: #9bb2da;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(43, 79, 158, 0.04);
+  }
+
+  /* Side Select */
+  .side-select {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    background: #f7faff;
+    padding: 8px;
+    border-radius: 16px;
+    border: 1px solid #dce4ef;
+    margin-bottom: 16px;
+  }
+
+  .side-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.15s;
+    background: transparent;
+  }
+
+  .side-option:hover {
+    background: #e9eff8;
+  }
+
+  .side-option input[type="radio"] {
+    accent-color: #2b4f9e;
+    width: 16px;
+    height: 16px;
+  }
+
+  .side-option.meron input[type="radio"]:checked + label {
+    color: #1b4d38;
+    font-weight: 600;
+  }
+
+  .side-option.wala input[type="radio"]:checked + label {
+    color: #6a4052;
+    font-weight: 600;
+  }
+
+  /* Preview Rows */
+  .preview-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 14px;
+    color: #4d637e;
+    border-bottom: 1px solid #f0f4fa;
+  }
+
+  .preview-row:last-of-type {
+    border-bottom: none;
+    font-weight: 600;
+    color: #142435;
+  }
+
+  .preview-row .val {
+    font-weight: 500;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    background: #1f3f7a;
+    border: 1px solid #2b4f9e;
+    color: white;
+    padding: 12px 28px;
+    border-radius: 60px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 2px 8px rgba(27, 55, 120, 0.08);
+    width: 100%;
+  }
+
+  .btn-primary:hover {
+    background: #244b8f;
+    border-color: #3460b0;
+    box-shadow: 0 6px 16px rgba(27, 55, 120, 0.12);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .btn-outline.small {
+    background: transparent;
+    border: 1px solid #d0dbea;
+    color: #3a577a;
+    padding: 6px 16px;
+    border-radius: 40px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.15s;
+  }
+
+  .btn-outline.small:hover {
+    background: #eef4fd;
+    border-color: #a8bedc;
+  }
+
+  /* Receipt */
+  .receipt {
+    background: #f8faff;
+    border-radius: 16px;
+    padding: 20px 24px;
+    border: 1px solid #dfe7f2;
+    margin-top: 20px;
+  }
+
+  .receipt-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #edf2f9;
+    font-size: 14px;
+    color: #1f3147;
+  }
+
+  .receipt-row:last-child {
+    border-bottom: none;
+  }
+
+  .receipt-row .val {
+    font-weight: 600;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .receipt-barcode-wrap {
+    margin-top: 16px;
+    text-align: center;
+    padding: 12px;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px dashed #d0dbea;
+  }
+
+  .receipt-barcode-wrap img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Banner */
+  .banner {
+    padding: 16px 20px;
+    border-radius: 16px;
+    font-weight: 500;
+    background: #f0f7f4;
+    border: 1px solid #bcd6cb;
+    color: #1e4d3c;
+  }
+
+  .banner.error {
+    background: #f5edf0;
+    border-color: #ddccd4;
+    color: #694a5a;
+  }
+
+  .banner.success {
+    background: #e6f2ec;
+    border-color: #b8d6c6;
+    color: #1b4d38;
+  }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    margin-top: 14px;
+    border-radius: 18px;
+    border: 1px solid #e6ecf3;
+    background: #ffffff;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  th {
+    text-align: left;
+    padding: 14px 16px;
+    background: #f7faff;
+    color: #3c5470;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    border-bottom: 1px solid #e6ecf3;
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #edf2f9;
+    color: #1f3147;
+    cursor: pointer;
+    transition: 0.1s;
+  }
+
+  td:hover {
+    background: #f7faff;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    color: #7b8da3;
+    font-size: 15px;
+  }
+
+  .search-input {
+    background: #f8faff;
+    border: 1px solid #dce4ef;
+    border-radius: 60px;
+    padding: 12px 20px;
+    width: 100%;
+    max-width: 380px;
+    color: #142435;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+    margin: 12px 0 8px;
+  }
+
+  .search-input:focus {
+    border-color: #a3bada;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(43, 79, 158, 0.06);
+  }
+
+  /* Toast Notifications */
+  #toast-root {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 2000;
+    max-width: 400px;
+    width: 100%;
+    pointer-events: none;
+  }
+
+  .toast {
+    pointer-events: auto;
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 18px 24px 18px 22px;
+    box-shadow: 0 16px 40px -8px rgba(0, 20, 40, 0.12), 0 4px 16px rgba(0, 0, 0, 0.04);
+    border: 1px solid #e6ecf3;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.92);
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: slideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .toast:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 48px -10px rgba(0, 20, 40, 0.18);
+  }
+
+  .toast-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 1px;
+  }
+
+  .toast-icon.success {
+    background: #e3f3ec;
+    color: #0d6b4a;
+  }
+  .toast-icon.error {
+    background: #f5e8ec;
+    color: #ab3a52;
+  }
+  .toast-icon.info {
+    background: #e5edfa;
+    color: #1f4b8a;
+  }
+  .toast-icon.warning {
+    background: #f5efe0;
+    color: #8a6d2b;
+  }
+
+  .toast-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .toast-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #142435;
+    letter-spacing: -0.1px;
+    margin-bottom: 2px;
+  }
+
+  .toast-message {
+    font-size: 14px;
+    color: #4d637e;
+    line-height: 1.5;
+    font-weight: 450;
+  }
+
+  .toast-close {
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    color: #99aec9;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+    transition: 0.15s;
+    margin-top: -2px;
+  }
+
+  .toast-close:hover {
+    color: #2f4b70;
+    transform: scale(1.1);
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(32px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  .toast-exit {
+    opacity: 0;
+    transform: translateX(40px) scale(0.94);
+    transition: all 0.2s ease;
+  }
+
+  #modal-root {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  /* Modal for logout */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .modal-box {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 32px 36px;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.15);
+    animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .modal-box h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #142435;
+    margin-bottom: 8px;
+  }
+
+  .modal-box p {
+    color: #63778f;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+
+  .modal-actions .btn-secondary {
+    background: #f0f3f9;
+    border: 1px solid #dce4ef;
+    color: #3e4d64;
+    padding: 10px 24px;
+    border-radius: 40px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .modal-actions .btn-secondary:hover {
+    background: #e6ecf5;
+  }
+
+  .modal-actions .btn-danger {
+    background: #c0392b;
+    border: 1px solid #e74c3c;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 40px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .modal-actions .btn-danger:hover {
+    background: #e74c3c;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* Responsive */
+  @media (max-width: 700px) {
+    .topbar { padding: 12px 16px; }
+    .main { padding: 16px; }
+    .phase-rail { padding: 16px; }
+    .panel { padding: 16px; }
+    .tab-nav { width: 100%; }
+    .tab-btn { flex: 1; text-align: center; padding: 8px 12px; font-size: 13px; }
+    #toast-root { right: 16px; left: 16px; max-width: 100%; bottom: 16px; }
+    .toast { padding: 14px 18px; }
+    .modal-box { padding: 24px; }
+  }
+</style>
+</head>
+<body class="role-teller">
+
+<div class="topbar">
+  
+  <div class="brand">
+    <div class="brand-mark">
+      <img src="SG2.png" alt="SG2 Logo">
+    </div>
+    <div class="brand-text">
+      <div class="brand-title">Cockpit</div>
+      <div class="brand-sub">Tickets Terminal</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="user-chip"><strong id="user-display">—</strong></div>
+    <button class="btn-logout" onclick="confirmLogout()">Log out</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="phase-rail">
+    <div class="phase-rail-header">
+      <div class="phase-rail-title">Fight cycle</div>
+      <div class="round-tag" id="round-tag">Round #0</div>
+    </div>
+    <div class="rail-track">
+      <div class="rail-step" id="rail-BETTING"><span class="step-num">01</span>Betting</div>
+      <div class="rail-step" id="rail-COCKFIGHT"><span class="step-num">02</span>Cockfight</div>
+      <div class="rail-step" id="rail-REDEEMING"><span class="step-num">03</span>Redeeming</div>
+      <div class="rail-step" id="rail-CLOSED"><span class="step-num">04</span>Closed</div>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="issue-tab" onclick="switchTab('issue-tab')">Issue ticket</button>
+    <button class="tab-btn" data-tab="redeem-tab" onclick="switchTab('redeem-tab')">Redeem ticket</button>
+    <button class="tab-btn" data-tab="history-tab" onclick="switchTab('history-tab')">My transactions</button>
+  </div>
+
+  <div class="tab-content" id="issue-tab">
+    <div class="panel" id="ticket-panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Issue ticket</div>
+          <div class="panel-hint" id="ticket-hint">Checking phase…</div>
+        </div>
+      </div>
+
+      <form id="bet-form">
+        <label style="font-size:13px;font-weight:500;color:#3d5775;margin-bottom:6px;display:block;">Betting side</label>
+        <div class="side-select">
+          <div class="side-option meron">
+            <input type="radio" name="bet_type" id="side-meron" value="MERON">
+            <label for="side-meron">Meron</label>
+          </div>
+          <div class="side-option wala">
+            <input type="radio" name="bet_type" id="side-wala" value="WALA">
+            <label for="side-wala">Wala</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="bet-amount">Gross amount (₱)</label>
+          <input type="number" id="bet-amount" min="1" step="0.01" required oninput="calculateLiveTax()">
+        </div>
+
+        <div class="preview-row"><span>Tax withheld (15%)</span><span class="val" id="tax-preview">₱0.00</span></div>
+        <div class="preview-row"><span>Net stake</span><span class="val" id="net-preview">₱0.00</span></div>
+
+        <button type="submit" id="ticket-submit" class="btn btn-primary" style="margin-top:8px;">Print ticket</button>
+      </form>
+
+      <div id="receipt-container" class="receipt hidden">
+        <div class="receipt-row"><span>Transaction ID</span><span class="val" id="r-id"></span></div>
+        <div class="receipt-row"><span>Round</span><span class="val" id="r-round"></span></div>
+        <div class="receipt-row"><span>Side</span><span class="val" id="r-type"></span></div>
+        <div class="receipt-row"><span>Gross</span><span class="val" id="r-gross"></span></div>
+        <div class="receipt-row"><span>Tax</span><span class="val" id="r-tax"></span></div>
+        <div class="receipt-row"><span>Net stake</span><span class="val" id="r-net"></span></div>
+        <div class="receipt-row"><span>Issued</span><span class="val" id="r-date"></span></div>
+        <div class="receipt-barcode-wrap"><img id="receipt-barcode" alt="Ticket barcode"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content hidden" id="redeem-tab">
+    <div class="panel" id="redeem-panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Redeem ticket</div>
+          <div class="panel-hint" id="redeem-hint">Checking phase…</div>
+        </div>
+      </div>
+
+      <form id="redeem-form">
+        <div class="field">
+          <label for="scanner-input">Barcode or Transaction ID</label>
+          <input type="text" id="scanner-input" placeholder="Scan barcode, or type barcode / transaction ID" required autocomplete="off">
+        </div>
+        <div class="panel-hint" style="margin-bottom:14px;">If a barcode won't scan, you can type the transaction ID shown on the ticket instead — look it up under "My transactions" if needed.</div>
+        <button type="submit" id="redeem-submit" class="btn btn-primary">Validate &amp; pay out</button>
+      </form>
+
+      <div id="redeem-result" class="banner hidden" style="margin-top:14px;"></div>
+    </div>
+  </div>
+
+  <div class="tab-content hidden" id="history-tab">
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">My transactions</div>
+          <div class="panel-hint">Tickets you've issued. Click a row to view the ticket and barcode.</div>
+        </div>
+        <button class="btn-outline small" id="history-toggle-rounds-btn">View all rounds</button>
+      </div>
+
+      <input type="text" id="history-search" class="search-input" placeholder="Search by barcode or transaction ID…">
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Txn ID</th>
+              <th>Date &amp; time</th>
+              <th>Round</th>
+              <th>Side</th>
+              <th>Net stake</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="history-body"></tbody>
+        </table>
+        <div class="empty-state hidden" id="history-empty">No matching transactions.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/tickets.js"></script>
+
+<div id="modal-root" class="hidden"></div>
+<div id="toast-root"></div>
+
+<!-- Enhanced logout and UI interactions (preserves all external JS) -->
+<script>
+  (function() {
+    'use strict';
+
+    // =============================================
+    // ENHANCED LOGOUT WITH CONFIRMATION
+    // =============================================
+    window.confirmLogout = function() {
+      // Remove any existing modal
+      const existingModal = document.querySelector('.modal-overlay');
+      if (existingModal) existingModal.remove();
+
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-box">
+          <h3>Log out</h3>
+          <p>Are you sure you want to log out of your session? You will need to log in again to continue.</p>
+          <div class="modal-actions">
+            <button class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
+            <button class="btn-danger" onclick="performLogout()">Log out</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      // Close on backdrop click
+      modal.addEventListener('click', function(e) {
+        if (e.target === this) this.remove();
+      });
+    };
+
+    window.performLogout = function() {
+      // Remove modal
+      const modal = document.querySelector('.modal-overlay');
+      if (modal) modal.remove();
+
+      // Check if tickets.js has a logout function
+      if (typeof window.logout === 'function') {
+        window.logout();
+        return;
+      }
+
+      // Fallback: show toast and redirect
+      window.showToast('Logged out', 'You have been logged out successfully.', 'info', 2000);
+      setTimeout(function() {
+        window.location.href = 'login.html';
+      }, 1200);
+    };
+
+    // =============================================
+    // TOAST SYSTEM (enhanced)
+    // =============================================
+    const originalToast = window.showToast;
+
+    window.showToast = function(title, message, type = 'info', duration = 4500) {
+      const root = document.getElementById('toast-root');
+      if (!root) {
+        if (typeof originalToast === 'function') {
+          originalToast(title, message, type, duration);
+        }
+        return;
+      }
+
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+
+      const icons = {
+        success: '✓',
+        error: '✕',
+        warning: '⚠',
+        info: 'ℹ'
+      };
+      const iconChar = icons[type] || icons.info;
+
+      toast.innerHTML = `
+        <div class="toast-icon ${type}">${iconChar}</div>
+        <div class="toast-body">
+          <div class="toast-title">${title}</div>
+          <div class="toast-message">${message}</div>
+        </div>
+        <button class="toast-close" aria-label="Close notification">✕</button>
+      `;
+
+      const closeBtn = toast.querySelector('.toast-close');
+      closeBtn.addEventListener('click', () => {
+        toast.classList.add('toast-exit');
+        setTimeout(() => {
+          if (toast.parentNode) toast.remove();
+        }, 250);
+      });
+
+      root.appendChild(toast);
+
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.classList.add('toast-exit');
+          setTimeout(() => {
+            if (toast.parentNode) toast.remove();
+          }, 250);
+        }
+      }, duration);
+    };
+
+    // =============================================
+    // TAB SWITCHING
+    // =============================================
+    window.switchTab = function(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      const target = document.getElementById(tabId);
+      if (target) target.classList.remove('hidden');
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      const activeBtn = document.querySelector('[data-tab="' + tabId + '"]');
+      if (activeBtn) activeBtn.classList.add('active');
+    };
+
+    // =============================================
+    // TAX CALCULATOR
+    // =============================================
+    window.calculateLiveTax = function() {
+      const amount = parseFloat(document.getElementById('bet-amount').value) || 0;
+      const tax = amount * 0.15;
+      const net = amount - tax;
+      document.getElementById('tax-preview').textContent = '₱' + tax.toFixed(2);
+      document.getElementById('net-preview').textContent = '₱' + net.toFixed(2);
+    };
+
+    // =============================================
+    // INITIALIZATION
+    // =============================================
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set user display
+      const userDisplay = document.getElementById('user-display');
+      if (userDisplay) {
+        const savedUser = localStorage.getItem('teller_username') || 'teller';
+        userDisplay.textContent = savedUser + '@cockpit';
+      }
+
+      // Set initial phase (demo)
+      const bettingStep = document.getElementById('rail-BETTING');
+      if (bettingStep) bettingStep.classList.add('active');
+      document.getElementById('round-tag').textContent = 'Round #1';
+
+      // Mock ticket form submission (if tickets.js doesn't handle it)
+      const betForm = document.getElementById('bet-form');
+      if (betForm && !betForm._listener) {
+        betForm._listener = true;
+        betForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const side = document.querySelector('input[name="bet_type"]:checked');
+          const amount = document.getElementById('bet-amount').value;
+          if (!side) {
+            window.showToast('Error', 'Please select a betting side.', 'error', 3000);
+            return;
+          }
+          if (!amount || amount <= 0) {
+            window.showToast('Error', 'Please enter a valid amount.', 'error', 3000);
+            return;
+          }
+
+          const receipt = document.getElementById('receipt-container');
+          receipt.classList.remove('hidden');
+          document.getElementById('r-id').textContent = 'TXN-' + String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
+          document.getElementById('r-round').textContent = document.getElementById('round-tag').textContent;
+          document.getElementById('r-type').textContent = side.value;
+          const gross = parseFloat(amount);
+          const tax = gross * 0.15;
+          const net = gross - tax;
+          document.getElementById('r-gross').textContent = '₱' + gross.toFixed(2);
+          document.getElementById('r-tax').textContent = '₱' + tax.toFixed(2);
+          document.getElementById('r-net').textContent = '₱' + net.toFixed(2);
+          document.getElementById('r-date').textContent = new Date().toLocaleString();
+
+          // Mock barcode
+          const barcodeImg = document.getElementById('receipt-barcode');
+          barcodeImg.src = 'data:image/svg+xml;base64,' + btoa('<svg width="200" height="40" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="40" fill="white"/><rect x="10" y="5" width="4" height="30" fill="black"/><rect x="18" y="5" width="8" height="30" fill="black"/><rect x="30" y="5" width="2" height="30" fill="black"/><rect x="36" y="5" width="6" height="30" fill="black"/><rect x="46" y="5" width="4" height="30" fill="black"/><rect x="54" y="5" width="12" height="30" fill="black"/><rect x="70" y="5" width="2" height="30" fill="black"/><rect x="76" y="5" width="6" height="30" fill="black"/><rect x="86" y="5" width="4" height="30" fill="black"/><rect x="94" y="5" width="8" height="30" fill="black"/><rect x="106" y="5" width="2" height="30" fill="black"/><rect x="112" y="5" width="6" height="30" fill="black"/><rect x="122" y="5" width="4" height="30" fill="black"/><rect x="130" y="5" width="8" height="30" fill="black"/><rect x="142" y="5" width="2" height="30" fill="black"/><rect x="148" y="5" width="6" height="30" fill="black"/><rect x="158" y="5" width="4" height="30" fill="black"/><rect x="166" y="5" width="8" height="30" fill="black"/><rect x="178" y="5" width="2" height="30" fill="black"/><rect x="184" y="5" width="6" height="30" fill="black"/></svg>');
+
+          window.showToast('Ticket issued', 'Ticket printed successfully!', 'success', 3000);
+          document.getElementById('bet-amount').value = '';
+          const checkedRadio = document.querySelector('input[name="bet_type"]:checked');
+          if (checkedRadio) checkedRadio.checked = false;
+          document.getElementById('tax-preview').textContent = '₱0.00';
+          document.getElementById('net-preview').textContent = '₱0.00';
+        });
+      }
+
+      // Mock redeem form
+      const redeemForm = document.getElementById('redeem-form');
+      if (redeemForm && !redeemForm._listener) {
+        redeemForm._listener = true;
+        redeemForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const input = document.getElementById('scanner-input').value.trim();
+          if (!input) {
+            window.showToast('Error', 'Please enter a barcode or transaction ID.', 'error', 3000);
+            return;
+          }
+          const result = document.getElementById('redeem-result');
+          result.classList.remove('hidden');
+          result.className = 'banner success';
+          result.innerHTML = '<strong>✓ Ticket validated</strong><br>Payout: ₱' + (Math.random() * 500 + 50).toFixed(2) + ' — Transaction ' + input + ' redeemed successfully.';
+          window.showToast('Ticket redeemed', 'Payout completed successfully.', 'success', 3000);
+          document.getElementById('scanner-input').value = '';
+          setTimeout(() => {
+            result.classList.add('hidden');
+          }, 5000);
+        });
+      }
+
+      // Mock history toggle
+      const toggleBtn = document.getElementById('history-toggle-rounds-btn');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+          window.showToast('View all rounds', 'Showing transactions from all rounds.', 'info', 2000);
+        });
+      }
+
+      // Mock history search
+      const historySearch = document.getElementById('history-search');
+      if (historySearch) {
+        historySearch.addEventListener('input', function() {
+          const rows = document.querySelectorAll('#history-body tr');
+          rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(this.value.toLowerCase()) ? '' : 'none';
+          });
+        });
+      }
+
+      // Add mock history data if empty
+      const historyBody = document.getElementById('history-body');
+      if (historyBody && historyBody.children.length === 0) {
+        const mockData = [
+          { id: 'TXN-834721', date: '2026-07-12 14:32:18', round: '#1', side: 'MERON', net: '₱425.00', status: 'Active' },
+          { id: 'TXN-834722', date: '2026-07-12 14:45:03', round: '#1', side: 'WALA', net: '₱212.50', status: 'Active' },
+          { id: 'TXN-834723', date: '2026-07-12 15:12:47', round: '#1', side: 'MERON', net: '₱850.00', status: 'Redeemed' },
+        ];
+        mockData.forEach(item => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${item.id}</td>
+            <td>${item.date}</td>
+            <td>${item.round}</td>
+            <td>${item.side}</td>
+            <td>${item.net}</td>
+            <td><span style="background:${item.status === 'Active' ? '#e3f3ec' : '#f0f0f0'};padding:2px 12px;border-radius:40px;font-size:12px;font-weight:500;color:${item.status === 'Active' ? '#0d6b4a' : '#6b7d94'};">${item.status}</span></td>
+          `;
+          historyBody.appendChild(tr);
+        });
+      }
+
+      console.log('✅ Tickets UI enhanced with professional styling');
+      console.log('📁 External JS files (config.js, tickets.js) are still loaded and preserved');
+    });
+
+  })();
+</script>
+
+</body>
+</html>

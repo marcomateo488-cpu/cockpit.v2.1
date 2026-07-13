@@ -1,0 +1,906 @@
+/* ============================================================
+   Cockpit — Fight Wagering Terminal
+   Token system
+   Neutral surfaces, one accent per role (admin = navy, teller = teal),
+   monospace reserved for money / IDs / barcodes, like a POS receipt.
+   ============================================================ */
+
+:root {
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --surface-sunken: #f0f1f4;
+  --border: #e1e4ea;
+  --border-strong: #c9ced9;
+
+  --text: #1a1d23;
+  --text-soft: #5b6270;
+  --text-faint: #8890a0;
+
+  --accent: #1e3a5f;       /* default / admin: deep navy */
+  --accent-soft: #e8edf3;
+  --accent-teller: #0f6e5c; /* teller: teal */
+  --accent-teller-soft: #e5f2ef;
+
+  --amber: #b45309;
+  --amber-soft: #fdf1e2;
+  --emerald: #047857;
+  --emerald-soft: #e5f5ef;
+  --rose: #b91c1c;
+  --rose-soft: #fbeaea;
+  --slate: #6b7280;
+  --slate-soft: #eef0f3;
+
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 2px rgba(20, 24, 33, 0.05), 0 1px 12px rgba(20, 24, 33, 0.04);
+
+  --font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.hidden { display: none !important; }
+
+a { color: inherit; }
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input {
+  font-family: inherit;
+}
+
+/* ---------- Layout shell ---------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+body.role-teller .brand-mark { background: var(--accent-teller); }
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.brand-title {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+.brand-sub {
+  font-size: 11.5px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.user-chip strong { color: var(--text); font-weight: 600; }
+
+.btn-logout {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-soft);
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: all .15s ease;
+}
+.btn-logout:hover { background: var(--slate-soft); color: var(--text); }
+
+.main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ---------- Phase rail (signature element) ---------- */
+
+.phase-rail {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 22px;
+}
+
+.phase-rail-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.phase-rail-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+}
+
+.round-tag {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-soft);
+  background: var(--surface-sunken);
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+
+.rail-track {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.rail-step {
+  position: relative;
+  padding: 10px 4px 10px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-faint);
+  transition: all .15s ease;
+}
+
+.rail-step .step-num {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--text-faint);
+  margin-bottom: 2px;
+}
+
+.rail-step.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.rail-step.active .step-num { color: rgba(255,255,255,0.7); }
+
+body.role-teller .rail-step.active { background: var(--accent-teller); border-color: var(--accent-teller); }
+
+.rail-step.done {
+  background: var(--surface);
+  color: var(--text-soft);
+  border-color: var(--border-strong);
+}
+
+/* ---------- Cards / panels ---------- */
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.panel-title {
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.panel-hint {
+  font-size: 12.5px;
+  color: var(--text-faint);
+  margin-top: 2px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 760px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .rail-track { grid-template-columns: repeat(2, 1fr); }
+  .main { padding: 16px; }
+}
+
+/* ---------- Form elements ---------- */
+
+label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-soft);
+  margin-bottom: 6px;
+}
+
+.field { margin-bottom: 16px; }
+
+input[type="text"],
+input[type="password"],
+input[type="number"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color .15s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+body.role-teller input:focus { border-color: var(--accent-teller); box-shadow: 0 0 0 3px var(--accent-teller-soft); }
+
+.side-select {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.side-option {
+  position: relative;
+}
+.side-option input { position: absolute; opacity: 0; }
+.side-option label {
+  display: block;
+  text-align: center;
+  padding: 12px 6px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-soft);
+  margin: 0;
+  transition: all .15s ease;
+}
+.side-option input:checked + label {
+  border-color: var(--accent-teller);
+  background: var(--accent-teller-soft);
+  color: var(--accent-teller);
+}
+.side-option.meron input:checked + label { border-color: var(--rose); background: var(--rose-soft); color: var(--rose); }
+.side-option.wala input:checked + label { border-color: #1d4ed8; background: #e8eefc; color: #1d4ed8; }
+
+.preview-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.preview-row .val { font-family: var(--font-mono); font-weight: 600; }
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 700;
+  border: none;
+  width: 100%;
+  transition: all .15s ease;
+}
+
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #16304e; }
+body.role-teller .btn-primary { background: var(--accent-teller); }
+body.role-teller .btn-primary:hover { background: #0b5a4b; }
+
+.btn-outline {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+}
+.btn-outline:hover { background: var(--surface-sunken); }
+
+.btn-outline.small, .btn-primary.small {
+  width: auto;
+  padding: 7px 13px;
+  font-size: 12.5px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.phase-btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+/* ---------- Status / banners ---------- */
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.banner.info { background: var(--accent-soft); color: var(--accent); }
+body.role-teller .banner.info { background: var(--accent-teller-soft); color: var(--accent-teller); }
+.banner.success { background: var(--emerald-soft); color: var(--emerald); }
+.banner.error { background: var(--rose-soft); color: var(--rose); }
+.banner.warn { background: var(--amber-soft); color: var(--amber); }
+
+.error-text {
+  color: var(--rose);
+  font-size: 12.5px;
+  margin-top: 8px;
+}
+
+/* ---------- Receipt ---------- */
+
+.receipt {
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+  background: var(--surface-sunken);
+  margin-top: 16px;
+}
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+}
+.receipt-row:last-of-type { border-bottom: none; }
+.receipt-row .val { font-family: var(--font-mono); font-weight: 600; }
+.receipt-barcode-wrap { text-align: center; margin-top: 14px; }
+.receipt-barcode-wrap img { max-width: 100%; }
+
+/* ---------- Table ---------- */
+
+.table-wrap { overflow-x: auto; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+th {
+  text-align: left;
+  padding: 9px 12px;
+  color: var(--text-faint);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+tr:last-child td { border-bottom: none; }
+
+.mono { font-family: var(--font-mono); }
+
+.tag {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.tag.pending { background: var(--amber-soft); color: var(--amber); }
+.tag.won { background: var(--emerald-soft); color: var(--emerald); }
+.tag.lost { background: var(--slate-soft); color: var(--slate); }
+.tag.paid { background: var(--accent-soft); color: var(--accent); }
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-faint);
+  font-size: 13px;
+}
+
+/* ---------- Confirmation modal ---------- */
+
+#modal-root:empty { display: none; }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 24, 33, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+  animation: fadeIn .15s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal-card {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 26px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 12px 40px rgba(20,24,33,0.25);
+  animation: modalPop .15s ease;
+}
+
+@keyframes modalPop {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.modal-message {
+  font-size: 13px;
+  color: var(--text-soft);
+  margin-bottom: 14px;
+}
+
+.modal-details {
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px 14px;
+  margin-bottom: 18px;
+}
+
+.modal-detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-detail-row:last-child { border-bottom: none; }
+.modal-detail-row .val { font-family: var(--font-mono); font-weight: 700; }
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+}
+.modal-actions .btn { width: auto; flex: 1; }
+
+.btn-danger { background: var(--rose); color: #fff; }
+.btn-danger:hover { background: #96190f; }
+
+/* ---------- Toasts ---------- */
+
+#toast-root {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.toast {
+  min-width: 240px;
+  max-width: 340px;
+  padding: 13px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(20,24,33,0.18);
+  opacity: 0;
+  transform: translateX(12px);
+  transition: opacity .2s ease, transform .2s ease;
+  color: #fff;
+}
+.toast-in { opacity: 1; transform: translateX(0); }
+.toast-out { opacity: 0; transform: translateX(12px); }
+
+.toast-success { background: var(--emerald); }
+.toast-error { background: var(--rose); }
+.toast-info { background: var(--accent); }
+body.role-teller .toast-info { background: var(--accent-teller); }
+
+/* ---------- Tab navigation (teller dashboard) ---------- */
+
+.tab-nav {
+  display: flex;
+  gap: 6px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px;
+}
+
+.tab-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text-soft);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  transition: all .15s ease;
+}
+
+.tab-btn.active {
+  background: var(--surface);
+  color: var(--accent-teller);
+  box-shadow: var(--shadow);
+}
+body.role-admin .tab-btn.active { color: var(--accent); }
+
+.tab-content.hidden { display: none; }
+
+/* ---------- Stat cards (admin round snapshot) ---------- */
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 18px;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+@media (max-width: 760px) {
+  .stat-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ---------- Header tab navigation (admin dashboard) ---------- */
+/* Deliberately neutral/no-color container per request — just a grouping
+   box for visibility, with the active tab picked out by weight + a subtle
+   fill rather than an accent color. */
+
+.header-tabs-wrap {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-tab-nav {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 10px 28px;
+  display: flex;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+}
+
+@media (max-width: 900px) {
+  .header-tab-nav { margin: 0 16px; flex-wrap: wrap; }
+}
+
+.header-tab-btn {
+  flex: 1;
+  min-width: 110px;
+  border: none;
+  background: transparent;
+  color: var(--text-soft);
+  font-weight: 600;
+  font-size: 12.5px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  transition: all .15s ease;
+}
+.header-tab-btn:hover { background: var(--surface-sunken); }
+.header-tab-btn.active {
+  background: var(--surface-sunken);
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* ---------- Colored command buttons (admin phase + resolve actions) ---------- */
+
+.cmd-btn {
+  flex: 1;
+  min-width: 130px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-weight: 700;
+  font-size: 13px;
+  background: var(--surface);
+  color: var(--text-soft);
+  transition: filter .15s ease, transform .1s ease, background .15s ease, color .15s ease, border-color .15s ease;
+}
+.cmd-btn:hover { background: var(--surface-sunken); }
+.cmd-btn:active { transform: translateY(1px); }
+
+/* A disabled cmd-btn means that action is not a legal next step from the
+   current phase right now — visually flat and inert instead of inviting a
+   click that the server would just reject. */
+.cmd-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: var(--surface);
+  color: var(--text-faint);
+  filter: none;
+  transform: none;
+}
+.cmd-btn:disabled:hover { background: var(--surface); }
+
+/* Phase buttons only show their color when they match the CURRENT phase;
+   otherwise they stay plain, so the active phase is unambiguous at a glance. */
+.cmd-btn.is-active { color: #fff; border-color: transparent; }
+.cmd-btn.is-active:hover { filter: brightness(1.08); }
+
+.cmd-betting.is-active   { background: #1d4ed8; }
+.cmd-cockfight.is-active { background: #b45309; }
+.cmd-redeeming.is-active { background: #0f6e5c; }
+.cmd-closed.is-active    { background: #475569; }
+
+/* "Start new round" is a one-shot action distinct from the phase cycle. */
+.cmd-newround { background: #0f6e5c; color: #fff; border: none; }
+.cmd-newround:disabled { background: var(--surface); color: var(--text-faint); opacity: 0.4; }
+
+/* "Overall close & reset" is destructive to live phase/round state, so it
+   always reads as a danger action, matching .btn-danger elsewhere. */
+.cmd-reset { background: var(--rose); color: #fff; border: none; }
+.cmd-reset:disabled { background: var(--surface); color: var(--text-faint); opacity: 0.4; }
+
+/* Fight-outcome buttons (Meron/Wala/Draw) are one-shot actions, not state
+   toggles, so they stay colored all the time. */
+.cmd-meron { background: var(--rose); color: #fff; border: none; }
+.cmd-wala  { background: #1d4ed8; color: #fff; border: none; }
+.cmd-draw  { background: #475569; color: #fff; border: none; }
+
+/* ---------- Search input ---------- */
+
+.search-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  margin-bottom: 14px;
+  background: var(--surface);
+}
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+body.role-teller .search-input:focus { border-color: var(--accent-teller); box-shadow: 0 0 0 3px var(--accent-teller-soft); }
+
+/* ---------- Clickable ledger/history rows ---------- */
+
+tr.clickable-row { cursor: pointer; }
+tr.clickable-row:hover { background: var(--surface-sunken); }
+
+.date-group-row td {
+  background: var(--surface-sunken);
+  font-weight: 700;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ---------- Login page ---------- */
+
+.login-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #f5f6f8 0%, #eef1f5 100%);
+  padding: 20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 4px 24px rgba(20,24,33,0.08);
+  padding: 32px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 26px;
+}
+
+.login-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  margin: 0 auto 14px;
+}
+
+.login-title {
+  font-size: 17px;
+  font-weight: 700;
+}
+.login-sub {
+  font-size: 12.5px;
+  color: var(--text-faint);
+  margin-top: 4px;
+}
+
+.footnote {
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--text-faint);
+  margin-top: 18px;
+}
+
+/* ============================================================
+   ADMIN NAV RESET BUTTON
+   Moved Overall Close & Reset into Navigation Tab
+   ============================================================ */
+
+.nav-reset-container {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+
+/* Reset button inside navbar */
+.nav-reset-container .cmd-reset {
+    width: auto;
+    min-width: 160px;
+    height: 38px;
+    padding: 8px 14px;
+    font-size: 12.5px;
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+}
+
+
+/* Hover effect */
+.nav-reset-container .cmd-reset:hover {
+    filter: brightness(1.1);
+}
+
+
+/* Mobile responsive */
+@media (max-width: 900px) {
+
+    .header-tab-nav {
+        flex-wrap: wrap;
+    }
+
+
+    .nav-reset-container {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 6px;
+    }
+
+
+    .nav-reset-container .cmd-reset {
+        width: 100%;
+    }
+
+}

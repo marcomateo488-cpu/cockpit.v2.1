@@ -1,0 +1,12 @@
+#automatically remove pycache files
+
+>Get-ChildItem -Path . -Include __pycache__ -Recurse -Directory | Remove-Item -Recurse -Force
+
+#change github remote address
+git remote set-url origin https://github.com/Chottomatto/project_cockpit_ver.0.5.git
+
+#start backend
+uvicorn app.main:app --reload
+
+start frontend
+python -m http.server 5500

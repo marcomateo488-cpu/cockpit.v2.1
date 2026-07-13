@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Cockpit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="SG2.png">
+  <link rel="shortcut icon" href="SG2.png">
+  
+  <style>
+    /* ----- elegant light theme, refined & airy ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f7fc;
+      color: #1a2634;
+      padding: 0;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 32px;
+      background: #ffffff;
+      border-bottom: 1px solid #e6ecf3;
+      flex-wrap: wrap;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: 0 6px 16px rgba(43, 79, 158, 0.15);
+      border: 1px solid #e6ecf3;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .brand-mark:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 24px rgba(43, 79, 158, 0.20);
+    }
+
+    .brand-mark img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    .brand-text {
+      line-height: 1.2;
+    }
+
+    .brand-title {
+      font-weight: 600;
+      font-size: 22px;
+      letter-spacing: -0.3px;
+      color: #142435;
+    }
+
+    .brand-sub {
+      font-size: 13px;
+      font-weight: 500;
+      color: #6f7d92;
+      letter-spacing: 0.2px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .user-chip {
+      background: #f0f3f9;
+      padding: 8px 18px;
+      border-radius: 60px;
+      font-size: 14px;
+      border: 1px solid #dce3ed;
+      color: #1f2b3d;
+    }
+
+    .user-chip strong {
+      color: #142435;
+      font-weight: 600;
+    }
+
+    .btn-logout {
+      background: transparent;
+      border: 1px solid #d0d9e6;
+      color: #3e4d64;
+      padding: 8px 18px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-logout:hover {
+      background: #eef2f9;
+      border-color: #b0bed0;
+      color: #0f1b2b;
+    }
+
+    .header-tabs-wrap {
+      background: #ffffff;
+      border-bottom: 1px solid #e6ecf3;
+      padding: 0 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+    }
+
+    .header-tab-nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 2px;
+      padding: 8px 0;
+      flex: 1;
+    }
+
+    .header-tab-btn {
+      background: transparent;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 14px;
+      color: #55647a;
+      cursor: pointer;
+      transition: 0.15s;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: -0.1px;
+    }
+
+    .header-tab-btn:hover {
+      color: #142435;
+      background: #eef2f8;
+    }
+
+    .header-tab-btn.active {
+      background: #e2e9f5;
+      color: #1a2d4a;
+      font-weight: 600;
+      box-shadow: inset 0 0 0 1px #c8d4e6;
+    }
+
+    .nav-reset-container {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      padding-left: 12px;
+    }
+
+    .cmd-btn {
+      font-family: 'Inter', sans-serif;
+      background: #ffffff;
+      border: 1px solid #d3dce8;
+      color: #2e405b;
+      padding: 8px 22px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.15s;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    .cmd-btn:hover {
+      background: #f5f8ff;
+      border-color: #b0c2da;
+      color: #142435;
+      box-shadow: 0 4px 10px rgba(0, 20, 50, 0.04);
+    }
+
+    .cmd-reset {
+      background: #fef6f8;
+      border-color: #e8ced6;
+      color: #864a5e;
+    }
+
+    .cmd-reset:hover {
+      background: #fceef2;
+      border-color: #dbaec0;
+      color: #6d3347;
+    }
+
+    .main {
+      padding: 28px 32px 48px;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+      flex: 1;
+    }
+
+    .tab-content {
+      animation: fade 0.2s ease;
+    }
+
+    @keyframes fade {
+      from { opacity: 0.5; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .phase-rail {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 20px 28px;
+      border: 1px solid #e6ecf3;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.02);
+      margin-bottom: 28px;
+    }
+
+    .phase-rail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .phase-rail-title {
+      font-weight: 600;
+      font-size: 16px;
+      color: #1a2a40;
+    }
+
+    .round-tag {
+      background: #eef3fc;
+      padding: 5px 18px;
+      border-radius: 60px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e3d6b;
+      border: 1px solid #d2dff0;
+    }
+
+    .rail-track {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 0;
+    }
+
+    .rail-step {
+      flex: 1;
+      min-width: 100px;
+      padding: 10px 8px;
+      background: #f2f6fd;
+      border-radius: 60px;
+      text-align: center;
+      font-weight: 500;
+      font-size: 14px;
+      color: #5a6d87;
+      border: 1px solid #dee7f2;
+      margin-right: 8px;
+      transition: 0.2s;
+    }
+
+    .rail-step .step-num {
+      opacity: 0.6;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+
+    .rail-step.active {
+      background: #dce6f8;
+      border-color: #9bb2da;
+      color: #1c3260;
+      box-shadow: 0 0 0 1px #a1b8e0;
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 18px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: #ffffff;
+      border: 1px solid #e6ecf3;
+      border-radius: 20px;
+      padding: 18px 22px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #6b7d94;
+      letter-spacing: 0.2px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #142435;
+      margin-top: 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .panel {
+      background: #ffffff;
+      border: 1px solid #e6ecf3;
+      border-radius: 24px;
+      padding: 24px 28px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .panel-title {
+      font-weight: 600;
+      font-size: 18px;
+      color: #142435;
+    }
+
+    .panel-hint {
+      font-size: 13px;
+      color: #63778f;
+      margin-top: 4px;
+      max-width: 580px;
+      line-height: 1.5;
+    }
+
+    .phase-btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .cmd-betting { background: #edf6f2; border-color: #bcd6cb; color: #1e4d3c; }
+    .cmd-betting:hover { background: #dff0e8; border-color: #8ebbad; }
+
+    .cmd-cockfight { background: #f7f2e8; border-color: #e0d2b8; color: #6a4f2a; }
+    .cmd-cockfight:hover { background: #f0e8d8; border-color: #ccb892; }
+
+    .cmd-redeeming { background: #eaf0fa; border-color: #bccde6; color: #1f3d6b; }
+    .cmd-redeeming:hover { background: #dfe8f8; border-color: #96b0d6; }
+
+    .cmd-closed { background: #f5edf0; border-color: #ddccd4; color: #694a5a; }
+    .cmd-closed:hover { background: #f0e3e9; border-color: #caafbc; }
+
+    .cmd-meron { background: #e6f2ec; border-color: #b8d6c6; color: #1b4d38; }
+    .cmd-meron:hover { background: #d8ece0; border-color: #92c0aa; }
+
+    .cmd-wala { background: #f5eaf0; border-color: #ddc8d4; color: #6a4052; }
+    .cmd-wala:hover { background: #f0dde8; border-color: #cbaabc; }
+
+    .cmd-draw { background: #f5f0e6; border-color: #dccfba; color: #6a5a38; }
+    .cmd-draw:hover { background: #efe8d8; border-color: #cabc9a; }
+
+    .receipt {
+      background: #f8faff;
+      border-radius: 16px;
+      padding: 16px 20px;
+      border: 1px solid #dfe7f2;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      color: #1a2d46;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border-radius: 18px;
+      border: 1px solid #e6ecf3;
+      background: #ffffff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th {
+      text-align: left;
+      padding: 14px 16px;
+      background: #f7faff;
+      color: #3c5470;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      border-bottom: 1px solid #e6ecf3;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #edf2f9;
+      color: #1f3147;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      color: #7b8da3;
+      font-size: 15px;
+    }
+
+    .search-input {
+      background: #f8faff;
+      border: 1px solid #dce4ef;
+      border-radius: 60px;
+      padding: 12px 20px;
+      width: 100%;
+      max-width: 380px;
+      color: #142435;
+      font-size: 14px;
+      outline: none;
+      transition: 0.2s;
+      margin: 12px 0 8px;
+    }
+
+    .search-input:focus {
+      border-color: #a3bada;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(43, 79, 158, 0.06);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px 24px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #3d5775;
+    }
+
+    .field input {
+      background: #f8faff;
+      border: 1px solid #dce4ef;
+      border-radius: 14px;
+      padding: 12px 16px;
+      color: #142435;
+      font-size: 14px;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    .field input:focus {
+      border-color: #9bb2da;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(43, 79, 158, 0.04);
+    }
+
+    .side-select {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      background: #f7faff;
+      padding: 8px;
+      border-radius: 16px;
+      border: 1px solid #dce4ef;
+    }
+
+    .side-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+
+    .side-option:hover {
+      background: #e9eff8;
+    }
+
+    .side-option input[type="radio"] {
+      accent-color: #2b4f9e;
+      width: 16px;
+      height: 16px;
+    }
+
+    .btn-primary {
+      background: #1f3f7a;
+      border: 1px solid #2b4f9e;
+      color: white;
+      padding: 12px 28px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-family: 'Inter', sans-serif;
+      box-shadow: 0 2px 8px rgba(27, 55, 120, 0.08);
+    }
+
+    .btn-primary:hover {
+      background: #244b8f;
+      border-color: #3460b0;
+      box-shadow: 0 6px 16px rgba(27, 55, 120, 0.12);
+    }
+
+    .btn-outline.small {
+      background: transparent;
+      border: 1px solid #d0dbea;
+      color: #3a577a;
+      padding: 6px 16px;
+      border-radius: 40px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .btn-outline.small:hover {
+      background: #eef4fd;
+      border-color: #a8bedc;
+    }
+
+    /* ----- ELEGANT NOTIFICATION / TOAST DESIGN ----- */
+    #toast-root {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 2000;
+      max-width: 400px;
+      width: 100%;
+      pointer-events: none;
+    }
+
+    .toast {
+      pointer-events: auto;
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 18px 24px 18px 22px;
+      box-shadow: 0 16px 40px -8px rgba(0, 20, 40, 0.12), 0 4px 16px rgba(0, 0, 0, 0.04);
+      border: 1px solid #e6ecf3;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.92);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: slideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .toast:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 48px -10px rgba(0, 20, 40, 0.18);
+    }
+
+    .toast-icon {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 1px;
+    }
+
+    .toast-icon.success {
+      background: #e3f3ec;
+      color: #0d6b4a;
+    }
+    .toast-icon.error {
+      background: #f5e8ec;
+      color: #ab3a52;
+    }
+    .toast-icon.info {
+      background: #e5edfa;
+      color: #1f4b8a;
+    }
+    .toast-icon.warning {
+      background: #f5efe0;
+      color: #8a6d2b;
+    }
+
+    .toast-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .toast-title {
+      font-weight: 600;
+      font-size: 14px;
+      color: #142435;
+      letter-spacing: -0.1px;
+      margin-bottom: 2px;
+    }
+
+    .toast-message {
+      font-size: 14px;
+      color: #4d637e;
+      line-height: 1.5;
+      font-weight: 450;
+    }
+
+    .toast-close {
+      flex-shrink: 0;
+      background: transparent;
+      border: none;
+      color: #99aec9;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+      transition: 0.15s;
+      margin-top: -2px;
+    }
+
+    .toast-close:hover {
+      color: #2f4b70;
+      transform: scale(1.1);
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(32px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+    }
+
+    .toast-exit {
+      opacity: 0;
+      transform: translateX(40px) scale(0.94);
+      transition: all 0.2s ease;
+    }
+
+    #modal-root {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(3px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    @media (max-width: 700px) {
+      .topbar { padding: 12px 16px; }
+      .main { padding: 16px; }
+      .header-tabs-wrap { padding: 0 12px; }
+      .header-tab-btn { padding: 8px 14px; font-size: 13px; }
+      .grid-2 { grid-template-columns: 1fr; }
+      #toast-root { right: 16px; left: 16px; max-width: 100%; bottom: 16px; }
+      .toast { padding: 14px 18px; }
+    }
+  </style>
+</head>
+<body class="role-admin">
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">
+      <img src="SG2.png" alt="SG2 Logo">
+    </div>
+    <div class="brand-text">
+      <div class="brand-title">Cockpit</div>
+      <div class="brand-sub">Admin Console</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="user-chip"><strong id="user-display">—</strong></div>
+    <button class="btn-logout" onclick="logout()">Log out</button>
+  </div>
+</div>
+
+<div class="header-tabs-wrap">
+  <div class="header-tab-nav">
+    <button class="header-tab-btn active" data-tab="tab-overview" onclick="switchAdminTab('tab-overview')">Overview</button>
+    <button class="header-tab-btn" data-tab="tab-ledger" onclick="switchAdminTab('tab-ledger')">Ledger</button>
+    <button class="header-tab-btn" data-tab="tab-reports" onclick="switchAdminTab('tab-reports')">Income reports</button>
+    <button class="header-tab-btn" data-tab="tab-accounts" onclick="switchAdminTab('tab-accounts')">Team accounts</button>
+    <button class="header-tab-btn" data-tab="tab-activity" onclick="switchAdminTab('tab-activity')">Activity log</button>
+    <div class="nav-reset-container">
+      <button class="cmd-btn cmd-reset" id="reset-system-btn" onclick="resetSystem()">Overall close &amp; reset</button>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- OVERVIEW -->
+  <div class="tab-content" id="tab-overview">
+    <div class="phase-rail">
+      <div class="phase-rail-header">
+        <div class="phase-rail-title">Fight cycle status</div>
+        <div class="round-tag" id="round-tag">Round #0</div>
+      </div>
+      <div class="rail-track">
+        <div class="rail-step" id="rail-BETTING"><span class="step-num">01</span>Betting</div>
+        <div class="rail-step" id="rail-COCKFIGHT"><span class="step-num">02</span>Cockfight</div>
+        <div class="rail-step" id="rail-REDEEMING"><span class="step-num">03</span>Redeeming</div>
+        <div class="rail-step" id="rail-CLOSED"><span class="step-num">04</span>Closed</div>
+      </div>
+    </div>
+
+    <div class="stat-row" id="round-stats">
+      <div class="stat-card"><div class="stat-label">Current round</div><div class="stat-value" id="stat-round">#0</div></div>
+      <div class="stat-card"><div class="stat-label">Tickets this round</div><div class="stat-value" id="stat-count">0</div></div>
+      <div class="stat-card"><div class="stat-label">Total staked (net)</div><div class="stat-value" id="stat-net">₱0.00</div></div>
+      <div class="stat-card"><div class="stat-label">Total gross</div><div class="stat-value" id="stat-gross">₱0.00</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><div><div class="panel-title">Round control</div><div class="panel-hint" id="round-control-hint">Start a new round before betting can open. This no longer happens automatically.</div></div></div>
+      <div class="phase-btn-row"><button class="cmd-btn cmd-newround" id="new-round-btn" onclick="createNewRound()">Start new round</button></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><div><div class="panel-title">Phase controls</div><div class="panel-hint">Changes what tellers are allowed to do system-wide. Only the legal next step from the current phase is clickable, so the cycle can't be skipped or run out of order. The active phase is highlighted below.</div></div></div>
+      <div class="phase-btn-row">
+        <button class="cmd-btn cmd-betting" data-phase="BETTING" onclick="setPhase('BETTING')">Open betting</button>
+        <button class="cmd-btn cmd-cockfight" data-phase="COCKFIGHT" onclick="setPhase('COCKFIGHT')">Start cockfight</button>
+        <button class="cmd-btn cmd-redeeming" data-phase="REDEEMING" onclick="setPhase('REDEEMING')">Open redeeming</button>
+        <button class="cmd-btn cmd-closed" data-phase="CLOSED" onclick="setPhase('CLOSED')">Close system</button>
+      </div>
+    </div>
+
+    <div class="panel" id="system-reset-panel">
+      <div class="panel-header"><div><div class="panel-title">Overall close</div><div class="panel-hint">Fully resets the round counter and phase back to idle — for wrapping up after all rounds are finished, or recovering from a misinput/incident. Only available while the system is Closed. Ticket and activity history are never affected.</div></div></div>
+      <div class="phase-btn-row"><button class="cmd-btn cmd-reset" id="reset-system-btn" onclick="resetSystem()">Overall close &amp; reset system</button></div>
+    </div>
+
+    <div class="panel hidden" id="resolve-panel">
+      <div class="panel-header"><div><div class="panel-title">Declare fight result</div><div class="panel-hint">Locks all pending tickets for the current round and calculates pari-mutuel payouts.</div></div></div>
+      <div class="phase-btn-row">
+        <button class="cmd-btn cmd-meron" onclick="declareResult('MERON')">Meron wins</button>
+        <button class="cmd-btn cmd-wala" onclick="declareResult('WALA')">Wala wins</button>
+        <button class="cmd-btn cmd-draw" onclick="declareResult('DRAW')">No decision — refund all</button>
+      </div>
+      <div id="resolve-summary" class="receipt hidden" style="margin-top:16px;"></div>
+    </div>
+  </div>
+
+  <!-- LEDGER -->
+  <div class="tab-content hidden" id="tab-ledger">
+    <div class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Transaction ledger — <span id="ledger-round-label">Round #0</span></div><div class="panel-hint">Every ticket issued and redeemed by tellers. Click a row to view the ticket.</div></div>
+        <button class="btn-outline small" id="toggle-rounds-btn">View all rounds</button>
+      </div>
+      <input type="text" id="ledger-search" class="search-input" placeholder="Search by barcode or transaction ID…">
+      <div class="table-wrap" id="ledger-wrap">
+        <table><thead><tr><th>Txn ID</th><th>Date &amp; time</th><th>Round</th><th>Teller</th><th>Side</th><th>Gross</th><th>Tax</th><th>Net / Payout</th><th>Status</th></tr></thead><tbody id="ledger-body"></tbody></table>
+        <div class="empty-state hidden" id="ledger-empty">No transactions yet for this round.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REPORTS -->
+  <div class="tab-content hidden" id="tab-reports">
+    <div class="panel">
+      <div class="panel-header"><div><div class="panel-title">Income by date</div><div class="panel-hint">Total gross wagered, tax withheld, and net staked, grouped by calendar date across every fight round.</div></div></div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Date</th><th>Tickets</th><th>Total gross</th><th>Total tax</th><th>Total net</th></tr></thead><tbody id="reports-body"></tbody></table>
+        <div class="empty-state hidden" id="reports-empty">No transactions recorded yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEAM ACCOUNTS -->
+  <div class="tab-content hidden" id="tab-accounts">
+    <div class="panel">
+      <div class="panel-header"><div><div class="panel-title">Team accounts</div><div class="panel-hint">Create admin/teller logins here — passwords are hashed server-side, never stored in source or shared as plain text.</div></div></div>
+      <form id="create-user-form" class="grid-2" style="align-items:end; margin-bottom:18px;">
+        <div class="field" style="margin-bottom:0;"><label for="new-username">Username</label><input type="text" id="new-username" minlength="3" required autocomplete="off"></div>
+        <div class="field" style="margin-bottom:0;"><label for="new-password">Temporary password</label><input type="text" id="new-password" minlength="8" required autocomplete="off" placeholder="At least 8 characters"></div>
+        <div class="field" style="margin-bottom:0; grid-column: 1 / -1;">
+          <label>Role</label>
+          <div class="side-select" style="grid-template-columns: repeat(2,1fr);">
+            <div class="side-option"><input type="radio" name="new-role" id="role-admin" value="ADMIN"><label for="role-admin">Admin</label></div>
+            <div class="side-option"><input type="radio" name="new-role" id="role-teller" value="TELLER" checked><label for="role-teller">Teller</label></div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="grid-column: 1 / -1;">Create account</button>
+      </form>
+      <div class="table-wrap">
+        <table><thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody id="users-body"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY -->
+  <div class="tab-content hidden" id="tab-activity">
+    <div class="panel">
+      <div class="panel-header"><div><div class="panel-title">Login activity</div><div class="panel-hint">Every login and logout, most recent first, for monitoring account access.</div></div></div>
+      <input type="text" id="activity-search" class="search-input" placeholder="Search by username…">
+      <div class="table-wrap">
+        <table><thead><tr><th>Date &amp; time</th><th>Username</th><th>Role</th><th>Action</th></tr></thead><tbody id="activity-body"></tbody></table>
+        <div class="empty-state hidden" id="activity-empty">No activity recorded yet.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/admin.js"></script>
+
+<div id="modal-root" class="hidden"></div>
+<div id="toast-root"></div>
+
+<!-- Toast system with elegant design (preserves all functions) -->
+<script>
+  (function() {
+    // Preserve any existing toast function, but enhance with elegant design
+    const originalToast = window.showToast;
+
+    window.showToast = function(title, message, type = 'info', duration = 4500) {
+      const root = document.getElementById('toast-root');
+      if (!root) {
+        // Fallback to original if exists
+        if (typeof originalToast === 'function') {
+          originalToast(title, message, type, duration);
+        }
+        return;
+      }
+
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+
+      const icons = {
+        success: '✓',
+        error: '✕',
+        warning: '⚠',
+        info: 'ℹ'
+      };
+      const iconChar = icons[type] || icons.info;
+
+      toast.innerHTML = `
+        <div class="toast-icon ${type}">${iconChar}</div>
+        <div class="toast-body">
+          <div class="toast-title">${title}</div>
+          <div class="toast-message">${message}</div>
+        </div>
+        <button class="toast-close" aria-label="Close notification">✕</button>
+      `;
+
+      const closeBtn = toast.querySelector('.toast-close');
+      closeBtn.addEventListener('click', () => {
+        toast.classList.add('toast-exit');
+        setTimeout(() => {
+          if (toast.parentNode) toast.remove();
+        }, 250);
+      });
+
+      root.appendChild(toast);
+
+      // Auto dismiss
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.classList.add('toast-exit');
+          setTimeout(() => {
+            if (toast.parentNode) toast.remove();
+          }, 250);
+        }
+      }, duration);
+    };
+
+    // Keep compatibility: if original toast existed, alias it
+    if (typeof originalToast === 'function') {
+      window._originalToast = originalToast;
+    }
+
+    // Demo notification on load (elegant welcome)
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        window.showToast('Welcome back', 'System ready. You are logged in as Admin.', 'success', 4000);
+      }, 600);
+    });
+  })();
+</script>
+
+</body>
+</html>
