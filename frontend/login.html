@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SG Cockpit — Cockpit</title>
+<title>Sign in — Cockpit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 
@@ -43,10 +43,6 @@
     40% { transform: translateX(6px); }
     60% { transform: translateX(-4px); }
     80% { transform: translateX(4px); }
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
   }
 
   .login-card {
@@ -92,12 +88,13 @@
     height: 68px;
     background: linear-gradient(145deg, #2b4f9e, #4a7ad4);
     border-radius: 20px;
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 700;
     color: white;
     box-shadow: 0 8px 28px rgba(43, 79, 158, 0.30);
     margin-bottom: 20px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    letter-spacing: -0.5px;
   }
 
   .login-mark:hover {
@@ -163,10 +160,6 @@
     box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.06);
   }
 
-  .field input:focus.error {
-    box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.10);
-  }
-
   .btn-primary {
     width: 100%;
     padding: 16px 24px;
@@ -210,25 +203,6 @@
     box-shadow: 0 4px 16px rgba(43, 79, 158, 0.15);
   }
 
-  .btn-primary:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none !important;
-    box-shadow: 0 4px 12px rgba(43, 79, 158, 0.08);
-  }
-
-  .btn-primary .spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 2.5px solid rgba(255,255,255,0.3);
-    border-top-color: #ffffff;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    vertical-align: middle;
-    margin-right: 10px;
-  }
-
   .error-text {
     margin-top: 16px;
     padding: 12px 18px;
@@ -238,12 +212,11 @@
     color: #c0392b;
     font-size: 14px;
     font-weight: 500;
-    display: none;
     animation: shake 0.35s ease;
   }
 
-  .error-text.show {
-    display: block;
+  .hidden {
+    display: none;
   }
 
   .footnote {
@@ -254,16 +227,6 @@
     line-height: 1.6;
     border-top: 1px solid #eef3f8;
     padding-top: 22px;
-  }
-
-  /* Success state */
-  .login-card.success .login-mark {
-    background: linear-gradient(145deg, #1a8a4a, #2ecc71);
-    box-shadow: 0 8px 28px rgba(46, 204, 113, 0.30);
-  }
-
-  .login-card.success .login-mark::after {
-    content: '✓';
   }
 
   /* Responsive */
@@ -278,7 +241,7 @@
     .login-mark {
       width: 58px;
       height: 58px;
-      font-size: 26px;
+      font-size: 22px;
     }
     .field input {
       padding: 12px 16px;
@@ -338,14 +301,14 @@
 </head>
 <body>
 <div class="login-shell">
-  <div class="login-card" id="login-card">
+  <div class="login-card">
     <div class="login-header">
-      <div class="login-mark"></div>
-      <div class="login-title">SG Cockpit Arena</div>
+      <div class="login-mark">CF</div>
+      <div class="login-title">Cockpit Wagering Terminal</div>
       <div class="login-sub">Sign in with your teller or admin account</div>
     </div>
 
-    <form id="login-form" novalidate>
+    <form id="login-form">
       <div class="field">
         <label for="username">Username</label>
         <input type="text" id="username" required autocomplete="username" autofocus placeholder="Enter your username">
@@ -355,152 +318,14 @@
         <input type="password" id="password" required autocomplete="current-password" placeholder="Enter your password">
       </div>
       <button type="submit" id="login-submit" class="btn btn-primary">Sign in</button>
-      <div id="login-error" class="error-text"></div>
+      <div id="login-error" class="error-text hidden"></div>
     </form>
 
     <div class="footnote">Access is role-based — you'll be routed to the correct dashboard automatically.</div>
   </div>
 </div>
 
-<!-- External JS files (preserved) -->
 <script src="js/config.js"></script>
 <script src="js/auth.js"></script>
-
-<!-- Enhanced login UI (preserves all external JS functionality) -->
-<script>
-  (function() {
-    'use strict';
-
-    // Get elements
-    const form = document.getElementById('login-form');
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const submitBtn = document.getElementById('login-submit');
-    const errorDiv = document.getElementById('login-error');
-    const loginCard = document.getElementById('login-card');
-
-    // Store original button text
-    const originalBtnText = submitBtn.textContent;
-
-    // Helper to show error
-    function showError(message) {
-      errorDiv.textContent = message;
-      errorDiv.classList.add('show');
-      usernameInput.classList.add('error');
-      passwordInput.classList.add('error');
-    }
-
-    // Helper to hide error
-    function hideError() {
-      errorDiv.classList.remove('show');
-      usernameInput.classList.remove('error');
-      passwordInput.classList.remove('error');
-    }
-
-    // Helper to set loading state
-    function setLoading(isLoading) {
-      if (isLoading) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner"></span> Signing in...';
-      } else {
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalBtnText;
-      }
-    }
-
-    // Clear error on input
-    usernameInput.addEventListener('input', hideError);
-    passwordInput.addEventListener('input', hideError);
-
-    // Handle form submission
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      hideError();
-
-      const username = usernameInput.value.trim();
-      const password = passwordInput.value.trim();
-
-      // Basic validation
-      if (!username) {
-        showError('Please enter your username.');
-        usernameInput.focus();
-        return;
-      }
-
-      if (!password) {
-        showError('Please enter your password.');
-        passwordInput.focus();
-        return;
-      }
-
-      // Show loading state
-      setLoading(true);
-
-      // Check if auth.js has a handleLogin function
-      if (typeof window.handleLogin === 'function') {
-        try {
-          window.handleLogin(username, password);
-          // Auth.js will handle redirect
-          return;
-        } catch (err) {
-          showError('Authentication failed. Please try again.');
-          setLoading(false);
-          return;
-        }
-      }
-
-      // Check if auth.js has a login function
-      if (typeof window.login === 'function') {
-        try {
-          window.login(username, password);
-          // Auth.js will handle redirect
-          return;
-        } catch (err) {
-          showError('Authentication failed. Please try again.');
-          setLoading(false);
-          return;
-        }
-      }
-
-      // Fallback: Simulate authentication (demo mode)
-      setTimeout(function() {
-        // Success - accept any credentials for demo
-        loginCard.classList.add('success');
-        const mark = loginCard.querySelector('.login-mark');
-        mark.textContent = '✓';
-        submitBtn.innerHTML = '✓ Signed in';
-        submitBtn.style.background = 'linear-gradient(145deg, #1a8a4a, #2ecc71)';
-        submitBtn.style.boxShadow = '0 4px 20px rgba(46, 204, 113, 0.30)';
-        errorDiv.classList.remove('show');
-
-        // Determine redirect based on username
-        setTimeout(function() {
-          const isAdmin = username.toLowerCase().includes('admin');
-          const redirectUrl = isAdmin ? 'admin.html' : 'tickets.html';
-          window.location.href = redirectUrl;
-        }, 1200);
-      }, 800);
-    });
-
-    // Keyboard shortcut: Escape to clear error
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && errorDiv.classList.contains('show')) {
-        hideError();
-      }
-    });
-
-    // Auto-focus username on load
-    if (usernameInput) {
-      setTimeout(function() {
-        usernameInput.focus();
-      }, 100);
-    }
-
-    console.log('✅ Login UI enhanced with professional styling');
-    console.log('📁 External JS files (config.js, auth.js) are still loaded and preserved');
-
-  })();
-</script>
-
 </body>
 </html>
